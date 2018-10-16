@@ -11,11 +11,12 @@ private fun deaden(value: Float): Float {
 }
 
 interface Pilot {
-    fun fly(fighterGame: FighterGame, actor: Actor, dt: Float)
+    fun fly(fighterGame: FighterGame, actor: Actor)
 
     fun getPitch(): Float
     fun getYaw(): Float
     fun getRoll(): Float
+    fun getAccel(): Float
 }
 
 abstract class PilotBase : Pilot {
@@ -29,7 +30,10 @@ abstract class PilotBase : Pilot {
     override fun getRoll(): Float = rollp
     var rollp = 0f
 
-    fun flyTowards(us: Actor, target: Actor, dt: Float, turn: Float, acceleration: Float) {
+    override fun getAccel(): Float = accelp
+    var accelp = 0f
+
+    fun flyTowards(us: Actor, target: Actor, turn: Float, acceleration: Float) {
         // else calculate where they will be, and fly towards that location
         val solution = leadTarget(
                 us.pos,
@@ -52,31 +56,25 @@ abstract class PilotBase : Pilot {
             yawp = -turn
         }
 
-        val accel: Float
+
         if (unRotatedTargetOffset.y > 0) {
-            accel = acceleration
+            accelp = acceleration
         } else {
-            accel = 0.25f * acceleration
+            accelp = 0.25f * acceleration
         }
-        us.velocity *= 1f - (0.8f * dt) // Slow down
-        us.velocity += accel * dt // Speed up
+
     }
 }
 
 class HumanPilot(val controller: Controller) : PilotBase() {
-    override fun fly(fighterGame: FighterGame, us: Actor, dt: Float) {
+    override fun fly(fighterGame: FighterGame, us: Actor) {
         with(us) {
             if (aircraftType != null) {
 
-                val accel = aircraftType.acceleration * accel(-controller.getAxis(Xbox.L_STICK_VERTICAL_AXIS))
-
+                accelp = aircraftType.acceleration * accel(-controller.getAxis(Xbox.L_STICK_VERTICAL_AXIS))
                 yawp = aircraftType.turnYaw * deaden(controller.getAxis(Xbox.L_STICK_HORIZONTAL_AXIS))
                 pitchp = aircraftType.turn * deaden(controller.getAxis(Xbox.R_STICK_VERTICAL_AXIS))
                 rollp = aircraftType.turn * deaden(controller.getAxis(Xbox.R_STICK_HORIZONTAL_AXIS))
-
-                velocity *= 1f - (0.8f * dt) // Slow down
-                velocity += accel * dt // Speed up
-
 
                 if (primaryWeapon != null && controller.getButton(Xbox.R_BUMPER)) {
                     primaryWeapon.fire(fighterGame, this)
@@ -98,7 +96,7 @@ class DriftPilot : PilotBase() {
         rollp = Random().nextFloat()
     }
 
-    override fun fly(fighterGame: FighterGame, actor: Actor, dt: Float) {}
+    override fun fly(fighterGame: FighterGame, actor: Actor) {}
 
 }
 
@@ -107,7 +105,7 @@ class AiPilot : PilotBase() {
     var target: Actor? = null
     var lastTargetTime: Long = 0
 
-    override fun fly(fighterGame: FighterGame, us: Actor, dt: Float) {
+    override fun fly(fighterGame: FighterGame, us: Actor) {
         val aircraftType = us.aircraftType!!
 
         val time = System.currentTimeMillis()
@@ -115,7 +113,7 @@ class AiPilot : PilotBase() {
         // find a target.  close and in front of us are good ideas
         if (lastTargetTime + 1000 < time) {
             target = findInForwardArc(fighterGame, us = us, maxDist = 1000f, maxAngle = 30f, enemyOnly = true)
-            lastTargetTime = time;
+            lastTargetTime = time
         }
 
 
@@ -128,16 +126,16 @@ class AiPilot : PilotBase() {
 //                    Vector3(0f, target.velocity, 0f).scl(target.velocity),
 //                    max(us.velocity, 3f)
 //            )
-            flyTowards(us, target!!, dt, aircraftType.turn, aircraftType.acceleration)
+            flyTowards(us, target!!, aircraftType.turn, aircraftType.acceleration)
 
             val dist = us.pos.dst2(target!!.pos)
-                if (us.primaryWeapon != null&& dist < 1000f) {
-                    us.primaryWeapon.fire(fighterGame, us)
-                }
+            if (us.primaryWeapon != null && dist < 1000f) {
+                us.primaryWeapon.fire(fighterGame, us)
+            }
 
-                if (us.secondaryWeapon != null && dist < 3000) {
-                    us.secondaryWeapon.fire(fighterGame, us)
-                }
+            if (us.secondaryWeapon != null && dist < 3000) {
+                us.secondaryWeapon.fire(fighterGame, us)
+            }
 
             // if we are close enough, shoot
 
@@ -163,7 +161,7 @@ class AiPilot : PilotBase() {
 // Steers a missile at an opponent
 class MissileGuidance(val target: Actor, val missileType: MissileType) : PilotBase() {
 
-    override fun fly(fighterGame: FighterGame, us: Actor, dt: Float) {
+    override fun fly(fighterGame: FighterGame, us: Actor) {
         // if we are close enough, detonate
         if (target.pos.dst(us.pos) < missileType.explosionRadius) {
             fighterGame.actors
@@ -174,7 +172,7 @@ class MissileGuidance(val target: Actor, val missileType: MissileType) : PilotBa
             fighterGame.removeActors.add(us)
         }
 
-        flyTowards(us, target, dt, missileType.turn, missileType.acceleration)
+        flyTowards(us, target, missileType.turn, missileType.acceleration)
 
         // if we are left, go left, right should go right
 

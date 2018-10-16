@@ -7,13 +7,13 @@ enum class AircraftType(
         val acceleration: Float = 1f,
 
         val turn: Float = 10f,
-        val turnYaw:Float = turn,
+        val turnYaw: Float = turn,
         var model: Model? = null,
         val life: Float = 1f,
         val radius: Float = 1f
 ) {
-    SWORDFISH(acceleration = 30f, turn = 60f,turnYaw = 40f, life = 20f, radius = 0.8f),
-    TILAPIA(acceleration = 28f, turn = 45f, life = 5f, radius = 0.8f); // NPC ships, we want to be better than them
+    SWORDFISH(acceleration = 30f, turn = 80f, turnYaw = 60f, life = 40f, radius = 0.8f),
+    TILAPIA(acceleration = 28f, turn = 45f, life = 40f, radius = 0.8f); // NPC ships, we want to be better than them
 }
 
 
@@ -22,12 +22,13 @@ enum class BulletType(
         val refireMS: Long = 1000,
         var model: Model? = null,
         val expiration: Long = 1000,
-        val radius: Float = 0.3f
+        val radius: Float = 0.3f,
+        val damage: Float = 2f
         // sound?
         // damage?
 ) {
-    RAILGUN(launchVelocity = 40f, refireMS = 100),
-    UGS_8(launchVelocity = 30f, refireMS = 200) // bot weapon, objectively worse
+    RAILGUN(launchVelocity = 40f, refireMS = 150),
+    UGS_8(launchVelocity = 30f, refireMS = 300) // bot weapon, objectively worse
 }
 
 enum class MissileType(
@@ -38,8 +39,32 @@ enum class MissileType(
         var model: Model? = null,
         val launchVelocity: Float = 3f,
         val acceleration: Float = 20f,
-        val turn: Float = 30f
+        val turn: Float = 30f,
+        val expiration: Long
 ) {
-    VIPER_MK2(5000, 10f, 10f, acceleration = 20f),
-    COBRA(10000, 8f, 5f, acceleration = 15f) // bot weapon
+    VIPER_MK2(
+            refireMS = 5000,
+            damage = 10f,
+            explosionRadius = 5f,
+            acceleration = 30f,
+            turn = 50f,
+            expiration = 10000
+    ),
+    COBRA(
+            refireMS = 10000,
+            damage = 8f,
+            explosionRadius = 5f,
+            acceleration = 15f,
+            expiration = 8000
+    ), // bot weapon
+    ANACONDA(
+            refireMS = 20000,
+            damage = 100f,
+            explosionRadius = 20f,
+            radius = 1f,
+            acceleration = 15f,
+            turn = 15f,
+            expiration = 30000
+    )
+
 }

@@ -16,8 +16,9 @@ class AudioManager(val fighterGame: FighterGame) {
 
     // Loading assets
 
-    fun variation() = (random.nextFloat() * 0.2f) + 0.9f
-
+    private fun volume() = (random.nextFloat() * 0.1f) + 0.9f
+    private fun pitch() = (random.nextFloat() * 0.2f) + 0.9f
+    private fun pan() = (random.nextFloat() * 0.4f) - 0.2f
 
     fun init() {
         laser = Gdx.audio.newSound(Gdx.files.internal("audio/laser2.mp3"))
@@ -28,19 +29,19 @@ class AudioManager(val fighterGame: FighterGame) {
     }
 
     fun explode() {
-        explosion.play(variation(), variation(), variation())
+        explosion.play(volume(), pitch(), pan())
     }
 
     fun laser() {
-        laser.play(variation(), variation(), variation())
+        laser.play(volume(), pitch(), pan())
     }
 
     fun launch() {
-        launch.play(variation(), variation(), variation())
+        launch.play(volume(), pitch(), pan())
     }
 
     fun beepFail() {
-        beep.play(variation(), variation(), variation())
+        beep.play(volume(), pitch(), pan())
     }
 
     fun dispose() {

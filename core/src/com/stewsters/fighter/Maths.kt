@@ -43,15 +43,15 @@ data class FiringSolution(
 fun accel(x: Float) = (0.3f * (x + 1f).pow(2f)) - 0.2f
 
 //
-fun main(args: Array<String>) {
-
-    println(accel(-1f))
-    println(accel(1f))
-
-//    leadTarget(
-//            src = Vector3(0f, 0f, 0f),
-//            targetPos = Vector3(10f, 10f, 10f),
-//            targetVel = Vector3(1f, 0f, 0f),
-//            projectileVel = 10f
-//    )
-}
+//fun main(args: Array<String>) {
+//
+//    println(accel(-1f))
+//    println(accel(1f))
+//
+////    leadTarget(
+////            src = Vector3(0f, 0f, 0f),
+////            targetPos = Vector3(10f, 10f, 10f),
+////            targetVel = Vector3(1f, 0f, 0f),
+////            projectileVel = 10f
+////    )
+//}
