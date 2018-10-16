@@ -19,9 +19,9 @@ abstract class Launcher(val refireMS: Long, val launchVelocity: Float) : Weapon 
 
             val offset: Vector3
             offset = if (rightNext) {
-                Actor.right.cpy().add(Actor.forward).mul(shooter.facing)
+                Actor.right.cpy().scl(0.5f).add(Actor.forward).mul(shooter.facing)
             } else {
-                Actor.left.cpy().add(Actor.forward).mul(shooter.facing)
+                Actor.left.cpy().scl(0.5f).add(Actor.forward).mul(shooter.facing)
             }
 
             rightNext = !rightNext

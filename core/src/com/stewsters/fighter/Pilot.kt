@@ -100,10 +100,16 @@ class DriftPilot : PilotBase() {
 
 }
 
+enum class AiState {
+    ATTACK,
+    RETREAT
+}
+
 class AiPilot : PilotBase() {
 
     var target: Actor? = null
     var lastTargetTime: Long = 0
+    var mode: AiState = AiState.ATTACK
 
     override fun fly(fighterGame: FighterGame, us: Actor) {
         val aircraftType = us.aircraftType!!
@@ -119,6 +125,23 @@ class AiPilot : PilotBase() {
 
         if (target != null) {
 
+            val dist = us.pos.dst2(target!!.pos)
+
+
+            val towards = when (mode) {
+                AiState.ATTACK -> {
+                    if (dist < 300f) mode = AiState.RETREAT
+                    1f
+                }
+                AiState.RETREAT -> {
+                    if (dist > 1200f) mode = AiState.ATTACK
+                    -1f
+                }
+            }
+
+            // If in attack mode and we are too close, change to retreat mode.
+            // if we are in retreat mode and too far away, switch to attack mode
+
             // else calculate where they will be, and fly towards that location
 //            val solution = leadTarget(
 //                    us.pos,
@@ -128,8 +151,12 @@ class AiPilot : PilotBase() {
 //            )
             flyTowards(us, target!!, aircraftType.turn, aircraftType.acceleration)
 
-            val dist = us.pos.dst2(target!!.pos)
-            if (us.primaryWeapon != null && dist < 1000f) {
+            pitchp *= towards
+            yawp *= towards
+            rollp *= towards
+
+
+            if (us.primaryWeapon != null && dist < 1500f) {
                 us.primaryWeapon.fire(fighterGame, us)
             }
 

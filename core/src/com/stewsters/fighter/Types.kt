@@ -12,8 +12,8 @@ enum class AircraftType(
         val life: Float = 1f,
         val radius: Float = 1f
 ) {
-    SWORDFISH(acceleration = 30f, turn = 80f, turnYaw = 60f, life = 40f, radius = 0.8f),
-    TILAPIA(acceleration = 28f, turn = 45f, life = 40f, radius = 0.8f); // NPC ships, we want to be better than them
+    SWORDFISH(acceleration = 30f, turn = 80f, turnYaw = 60f, life = 30f, radius = 0.8f),
+    TILAPIA(acceleration = 28f, turn = 60f, life = 30f, radius = 0.8f); // NPC ships, we want to be better than them
 }
 
 
@@ -21,14 +21,14 @@ enum class BulletType(
         val launchVelocity: Float = 6f,
         val refireMS: Long = 1000,
         var model: Model? = null,
-        val expiration: Long = 1000,
+        val expiration: Long = 1500,
         val radius: Float = 0.3f,
         val damage: Float = 2f
         // sound?
         // damage?
 ) {
-    RAILGUN(launchVelocity = 40f, refireMS = 150),
-    UGS_8(launchVelocity = 30f, refireMS = 300) // bot weapon, objectively worse
+    RAILGUN(launchVelocity = 40f, refireMS = 120),
+    UGS_8(launchVelocity = 40f, refireMS = 150) // bot weapon, objectively worse
 }
 
 enum class MissileType(
@@ -37,17 +37,17 @@ enum class MissileType(
         val explosionRadius: Float,
         val radius: Float = 0.3f,
         var model: Model? = null,
-        val launchVelocity: Float = 3f,
+        val launchVelocity: Float = 5f,
         val acceleration: Float = 20f,
         val turn: Float = 30f,
         val expiration: Long
 ) {
     VIPER_MK2(
-            refireMS = 5000,
-            damage = 10f,
+            refireMS = 3000,
+            damage = 20f,
             explosionRadius = 5f,
-            acceleration = 30f,
-            turn = 50f,
+            acceleration = 35f,
+            turn = 65f,
             expiration = 10000
     ),
     COBRA(

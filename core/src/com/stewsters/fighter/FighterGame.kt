@@ -8,6 +8,7 @@ import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.graphics.GL20
 import com.badlogic.gdx.graphics.PerspectiveCamera
 import com.badlogic.gdx.graphics.VertexAttributes
+import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import com.badlogic.gdx.graphics.g3d.Environment
 import com.badlogic.gdx.graphics.g3d.Material
 import com.badlogic.gdx.graphics.g3d.Model
@@ -15,6 +16,7 @@ import com.badlogic.gdx.graphics.g3d.ModelBatch
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute
 import com.badlogic.gdx.graphics.g3d.environment.DirectionalLight
 import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer
 import com.badlogic.gdx.math.Quaternion
 import com.badlogic.gdx.math.Vector3
 import java.util.*
@@ -29,6 +31,7 @@ class FighterGame : ApplicationAdapter() {
     internal lateinit var modelBatch: ModelBatch
     internal lateinit var asteroidModel: Array<Model>
     internal lateinit var environment: Environment
+    internal lateinit var shapeRenderer:ShapeRenderer
 
     val actors = mutableListOf<Actor>()
     val newActors = mutableListOf<Actor>()
@@ -38,8 +41,6 @@ class FighterGame : ApplicationAdapter() {
 
     var splitScreen: SplitScreen = SplitScreen.ONE
     var players = mutableListOf<Actor>()
-    //var p1: Actor? = null
-
 
     val audio: AudioManager = AudioManager(this)
 
@@ -47,6 +48,7 @@ class FighterGame : ApplicationAdapter() {
         audio.init()
 
         modelBatch = ModelBatch()
+        shapeRenderer= ShapeRenderer()
 
         environment = Environment()
         environment.set(ColorAttribute(ColorAttribute.AmbientLight, 0.6f, 0.6f, 0.6f, 1f))
@@ -267,6 +269,13 @@ class FighterGame : ApplicationAdapter() {
                 modelBatch.render(craft.instance, environment)
             }
             modelBatch.end()
+
+            shapeRenderer.begin(ShapeRenderer.ShapeType.Line)
+            shapeRenderer.setColor(Color.GREEN)
+            shapeRenderer.rect(960f - 5, 540f - 5, 10f, 10f)
+
+            shapeRenderer.end()
+
         }
 
         // to prevent concurrent modification exceptions
