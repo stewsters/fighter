@@ -6,7 +6,7 @@ import com.badlogic.gdx.math.Vector3
 
 interface Weapon {
     fun fire(fighterGame: FighterGame, shooter: Actor)
-    fun project(fighterGame: FighterGame, shooter: Actor, position: Vector3, facing: Quaternion, velocity: Float)
+    fun project(fighterGame: FighterGame, shooter: Actor, position: Vector3, rotation: Quaternion, velocity: Float)
 }
 
 abstract class Launcher(val refireMS: Long, val launchVelocity: Float) : Weapon {
@@ -19,9 +19,9 @@ abstract class Launcher(val refireMS: Long, val launchVelocity: Float) : Weapon 
 
             val offset: Vector3
             offset = if (rightNext) {
-                Actor.right.cpy().scl(0.5f).add(Actor.forward).mul(shooter.facing)
+                Actor.right.cpy().scl(1f).add(Actor.forward).mul(shooter.rotation)
             } else {
-                Actor.left.cpy().scl(0.5f).add(Actor.forward).mul(shooter.facing)
+                Actor.left.cpy().scl(1f).add(Actor.forward).mul(shooter.rotation)
             }
 
             rightNext = !rightNext
@@ -29,8 +29,8 @@ abstract class Launcher(val refireMS: Long, val launchVelocity: Float) : Weapon 
             project(
                     fighterGame,
                     shooter,
-                    shooter.pos.cpy().add(offset),
-                    shooter.facing.cpy(),
+                    shooter.position.cpy().add(offset),
+                    shooter.rotation.cpy(),
                     shooter.velocity + launchVelocity
             )
 
@@ -43,15 +43,15 @@ abstract class Launcher(val refireMS: Long, val launchVelocity: Float) : Weapon 
 // Fires projectiles
 class Cannon(val bulletType: BulletType) : Launcher(bulletType.refireMS, bulletType.launchVelocity) {
 
-    override fun project(fighterGame: FighterGame, shooter: Actor, position: Vector3, facing: Quaternion, velocity: Float) {
+    override fun project(fighterGame: FighterGame, shooter: Actor, position: Vector3, rotation: Quaternion, velocity: Float) {
 
         // I think we will need a sound player class, that detects the distance to each and scales the audio
         fighterGame.audio.laser()
         fighterGame.newActors.add(Actor(
                 position,
-                facing,
+                rotation,
                 velocity,
-                bulletType.model!!,
+                bulletType.model,
                 expiration = Expiration(bulletType.expiration),
                 radius = bulletType.radius,
                 collider = DamageAndDisappearCollider(bulletType.damage)
@@ -64,13 +64,13 @@ class MissileRack(val missileType: MissileType) : Launcher(
         missileType.refireMS,
         missileType.launchVelocity
 ) {
-    override fun project(fighterGame: FighterGame, shooter: Actor, position: Vector3, facing: Quaternion, velocity: Float) {
+    override fun project(fighterGame: FighterGame, shooter: Actor, position: Vector3, rotation: Quaternion, velocity: Float) {
 
         // find a target
         val target: Actor? = fighterGame.actors.asSequence()
 //                .filter { it.faction.isEnemy(shooter.faction) }
                 .filter { it.aircraftType != null && it != shooter }
-                .minBy { shooter.pos.dst2(it.pos) }
+                .minBy { shooter.position.dst2(it.position) }
 
         if (target == null) {
             // fail to fire
@@ -81,10 +81,10 @@ class MissileRack(val missileType: MissileType) : Launcher(
         fighterGame.audio.launch()
 
         fighterGame.newActors.add(Actor(
-                pos = position,
-                facing = facing,
+                position = position,
+                rotation = rotation,
                 velocity = velocity,
-                model = missileType.model!!,
+                model = missileType.model,
                 pilot = MissileGuidance(target, missileType),
                 life = Life(1f),
                 expiration = Expiration(missileType.expiration),

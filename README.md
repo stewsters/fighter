@@ -10,12 +10,15 @@ This is pretty low poly because I am not great at modeling and had limited time.
 ## TODO
 
 ### Game
-
+* minimap - show where opponents are
 * Turn manipulation - can turn better at lower speeds
 * Ammo limitations - cannot keep shooting missiles - they are too good
 * missile /ship avoidance of asteroids - probably use some flocking stuff here
-* squadrons
-* capital ships (cannons?)
+* squadrons - allies that can fly in formation.  probably need to solidify factions
+* capital ships (flak cannons?, long range torpedoes) 
+* alternative environments
+* DSL for setting up encounters
+
 
 ### Visual
  

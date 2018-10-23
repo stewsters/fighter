@@ -4,7 +4,7 @@ import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.audio.Sound
 import java.util.*
 
-class AudioManager(val fighterGame: FighterGame) {
+class AudioManager {
 
     val random = Random()
 

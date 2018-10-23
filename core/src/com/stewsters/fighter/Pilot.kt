@@ -32,38 +32,16 @@ abstract class PilotBase : Pilot {
 
     override fun getAccel(): Float = accelp
     var accelp = 0f
-
-    fun flyTowards(us: Actor, target: Actor, turn: Float, acceleration: Float) {
-        // else calculate where they will be, and fly towards that location
-        val solution = leadTarget(
-                us.pos,
-                target.pos,
-                Vector3(0f, target.velocity, 0f).mul(target.facing),
-                max(us.velocity, 3f)
-        )
-
-        val unRotatedTargetOffset = solution.path.mul(us.facing.cpy().conjugate())
-
-        if (unRotatedTargetOffset.z > 0f) {
-            pitchp = turn
-        } else {
-            pitchp = -turn
-        }
-
-        if (unRotatedTargetOffset.x > 0f) {
-            yawp = turn
-        } else {
-            yawp = -turn
-        }
-
-
-        if (unRotatedTargetOffset.y > 0) {
-            accelp = acceleration
-        } else {
-            accelp = 0.25f * acceleration
-        }
-
-    }
+//
+//    fun flyTowards(us: Actor, target: Actor, turn: Float, acceleration: Float) {
+//
+//
+//
+//    }
+//
+//    fun getFromPerspective(){
+//
+//    }
 }
 
 class HumanPilot(val controller: Controller) : PilotBase() {
@@ -107,30 +85,37 @@ enum class AiState {
 
 class AiPilot : PilotBase() {
 
-    var target: Actor? = null
+    var lastTarget: Actor? = null
     var lastTargetTime: Long = 0
     var mode: AiState = AiState.ATTACK
 
     override fun fly(fighterGame: FighterGame, us: Actor) {
+
         val aircraftType = us.aircraftType!!
 
         val time = System.currentTimeMillis()
+        val target: Actor?
 
         // find a target.  close and in front of us are good ideas
         if (lastTargetTime + 1000 < time) {
             target = findInForwardArc(fighterGame, us = us, maxDist = 1000f, maxAngle = 30f, enemyOnly = true)
+            lastTarget = target
             lastTargetTime = time
+        } else {
+            target = lastTarget
         }
 
 
         if (target != null) {
 
-            val dist = us.pos.dst2(target!!.pos)
+            val dist = us.position.dst2(target.position)
 
 
+            // If in attack mode and we are too close, change to retreat mode.
+            // if we are in retreat mode and too far away, switch to attack mode
             val towards = when (mode) {
                 AiState.ATTACK -> {
-                    if (dist < 300f) mode = AiState.RETREAT
+                    if (dist < 200f) mode = AiState.RETREAT
                     1f
                 }
                 AiState.RETREAT -> {
@@ -139,32 +124,64 @@ class AiPilot : PilotBase() {
                 }
             }
 
-            // If in attack mode and we are too close, change to retreat mode.
-            // if we are in retreat mode and too far away, switch to attack mode
+            val turn = aircraftType.turn
+            val turnYaw = aircraftType.turnYaw
 
             // else calculate where they will be, and fly towards that location
-//            val solution = leadTarget(
-//                    us.pos,
-//                    target.pos,
-//                    Vector3(0f, target.velocity, 0f).scl(target.velocity),
-//                    max(us.velocity, 3f)
-//            )
-            flyTowards(us, target!!, aircraftType.turn, aircraftType.acceleration)
+            val solution = leadTarget(
+                    us.position,
+                    target.position,
+                    Vector3(0f, target.velocity, 0f).mul(target.rotation),
+                    max(us.velocity, 3f)
+            )
+
+            val unRotatedTargetOffset = solution.path.mul(us.rotation.cpy().conjugate())
+
+            if (unRotatedTargetOffset.z > 0f) {
+                pitchp = turn
+            } else {
+                pitchp = -turn
+            }
+
+            if (unRotatedTargetOffset.x > 0f) {
+                yawp = turnYaw
+                rollp = turn
+            } else {
+                yawp = -turnYaw
+                rollp = -turn
+            }
 
             pitchp *= towards
             yawp *= towards
             rollp *= towards
 
 
-            if (us.primaryWeapon != null && dist < 1500f) {
-                us.primaryWeapon.fire(fighterGame, us)
-            }
-
-            if (us.secondaryWeapon != null && dist < 3000) {
-                us.secondaryWeapon.fire(fighterGame, us)
-            }
-
             // if we are close enough, shoot
+            if (unRotatedTargetOffset.y > 0) {
+
+                if (us.secondaryWeapon != null && dist < 3000) {
+                    us.secondaryWeapon.fire(fighterGame, us)
+                }
+
+                if (dist < 1500 && mode == AiState.ATTACK) {
+
+                    accelp = 0.25f * aircraftType.acceleration
+                    if (us.primaryWeapon != null) {
+                        us.primaryWeapon.fire(fighterGame, us)
+                    }
+
+                } else {
+                    accelp = aircraftType.acceleration
+                }
+
+            } else {
+                if (mode == AiState.ATTACK) {
+                    accelp = aircraftType.acceleration
+                } else { // retreat
+                    accelp = 0.25f * aircraftType.acceleration
+                }
+
+            }
 
 
         }
@@ -172,12 +189,11 @@ class AiPilot : PilotBase() {
 
     private fun findInForwardArc(fighterGame: FighterGame, us: Actor, maxDist: Float, maxAngle: Float, enemyOnly: Boolean): Actor? {
 
-//        val distSq = maxDist*maxDist
         return fighterGame.actors.asSequence()
                 .filter { it != us && it.aircraftType != null }
-//                .filter {it.pos.dst2(us.pos) < maxDist }
+//                .filter {it.position.dst2(us.position) < maxDist }
                 .minBy {
-                    it.pos.dst(us.pos)
+                    it.position.dst(us.position)
                 }
 
     }
@@ -190,16 +206,47 @@ class MissileGuidance(val target: Actor, val missileType: MissileType) : PilotBa
 
     override fun fly(fighterGame: FighterGame, us: Actor) {
         // if we are close enough, detonate
-        if (target.pos.dst(us.pos) < missileType.explosionRadius) {
+        if (target.position.dst(us.position) < missileType.explosionRadius) {
             fighterGame.actors
-                    .filter { it.pos.dst(us.pos) < missileType.explosionRadius }
+                    .filter { it.position.dst(us.position) < missileType.explosionRadius }
                     .forEach { it.life?.takeDamage(fighterGame, it, missileType.damage) }
 
             // destroy ourselves
             fighterGame.removeActors.add(us)
         }
 
-        flyTowards(us, target, missileType.turn, missileType.acceleration)
+
+        val turn = missileType.turn
+
+        // else calculate where they will be, and fly towards that location
+        val solution = leadTarget(
+                us.position,
+                target.position,
+                Vector3(0f, target.velocity, 0f).mul(target.rotation),
+                max(us.velocity, 5f)
+        )
+
+        val unRotatedTargetOffset = solution.path.mul(us.rotation.cpy().conjugate())
+
+        if (unRotatedTargetOffset.z > 0f) {
+            pitchp = turn
+        } else {
+            pitchp = -turn
+        }
+
+        if (unRotatedTargetOffset.x > 0f) {
+            yawp = turn
+        } else {
+            yawp = -turn
+        }
+
+
+        if (unRotatedTargetOffset.y > 0) {
+            accelp = missileType.acceleration
+        } else {
+            accelp = 0.25f * missileType.acceleration
+        }
+
 
         // if we are left, go left, right should go right
 

@@ -7,8 +7,8 @@ import com.badlogic.gdx.math.Quaternion
 import com.badlogic.gdx.math.Vector3
 
 open class Actor(
-        val pos: Vector3,
-        val facing: Quaternion,
+        val position: Vector3,
+        val rotation: Quaternion,
         var velocity: Float = 0f,
         model: Model,
         val pilot: Pilot? = null,
@@ -34,7 +34,7 @@ open class Actor(
 
 
     init {
-        instance.transform.setToTranslation(pos).rotate(facing)
+        instance.transform.setToTranslation(position).rotate(rotation)
     }
 }
 
@@ -76,8 +76,8 @@ class Expiration(ttlMS: Long) {
 
 enum class Faction {
     UNALIGNED,
-    IMPERIAL,
-    REBEL;
+    ALDRONI,
+    DOMINION;
 
     fun isEnemy(faction: Faction): Boolean {
         if (faction == UNALIGNED || this == UNALIGNED) {
