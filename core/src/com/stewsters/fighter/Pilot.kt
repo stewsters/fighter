@@ -4,10 +4,11 @@ import com.badlogic.gdx.controllers.Controller
 import com.badlogic.gdx.controllers.mappings.Xbox
 import com.badlogic.gdx.math.Vector3
 import java.util.*
+import kotlin.math.abs
 import kotlin.math.max
 
 private fun deaden(value: Float): Float {
-    return value * value * (if (value < 0) -1f else 1f)
+    return value * abs(value)
 }
 
 interface Pilot {
@@ -32,16 +33,7 @@ abstract class PilotBase : Pilot {
 
     override fun getAccel(): Float = accelp
     var accelp = 0f
-//
-//    fun flyTowards(us: Actor, target: Actor, turn: Float, acceleration: Float) {
-//
-//
-//
-//    }
-//
-//    fun getFromPerspective(){
-//
-//    }
+
 }
 
 class HumanPilot(val controller: Controller) : PilotBase() {

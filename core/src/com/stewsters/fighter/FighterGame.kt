@@ -8,10 +8,10 @@ import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.graphics.GL20
 import com.badlogic.gdx.graphics.PerspectiveCamera
 import com.badlogic.gdx.graphics.g3d.Environment
-import com.badlogic.gdx.graphics.g3d.Material
+
 import com.badlogic.gdx.graphics.g3d.Model
 import com.badlogic.gdx.graphics.g3d.ModelBatch
-import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute
+
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer
 import com.badlogic.gdx.math.Quaternion
 import com.badlogic.gdx.math.Vector3
@@ -25,7 +25,6 @@ class FighterGame : ApplicationAdapter() {
     //    https://stackoverflow.com/questions/17902373/split-screen-in-libgdx
     internal lateinit var cam: PerspectiveCamera
     internal lateinit var modelBatch: ModelBatch
-    internal lateinit var asteroidModels: Array<Model>
     internal lateinit var environment: Environment
     internal lateinit var shapeRenderer: ShapeRenderer
 
@@ -34,6 +33,8 @@ class FighterGame : ApplicationAdapter() {
     val removeActors = mutableListOf<Actor>()
     var respawnActors = mutableListOf<Actor>()
 
+
+    internal lateinit var asteroidModels: Array<Model>
 
     var splitScreen: SplitScreen = SplitScreen.ONE
     var players = mutableListOf<Actor>()
@@ -55,86 +56,13 @@ class FighterGame : ApplicationAdapter() {
 
         // Setup of scenario
         environment = mission.place.environment
+        mission.place.props(this)
 
-        asteroidModels = Array(3) {
-            val size = (it + 1) * 5f
-            modelBuilder.createSphere(size, size, size,
-                    5 + it, 5 + it,
-                    Material(ColorAttribute.createDiffuse(Color.GRAY)),
-                    attr)
-        }
-
-//        environment = Environment()
-//        environment.set(ColorAttribute(ColorAttribute.AmbientLight, 0.6f, 0.6f, 0.6f, 1f))
-//        environment.add(DirectionalLight().set(0.8f, 0.8f, 0.8f, -1f, -0.8f, -0.2f))
-
-        val r = Random()
-        for (x in 0..5) {
-            for (y in 0..5) {
-                for (z in 0..5) {
-                    val x = x.toFloat() * 40f + (r.nextFloat() * 30f - 15f) - (3 * 40)
-                    val y = y.toFloat() * 40f + (r.nextFloat() * 30f - 15f) - (3 * 40)
-                    val z = z.toFloat() * 40f + (r.nextFloat() * 30f - 15f) - (3 * 40)
-
-                    val size = r.nextInt(asteroidModels.size)
-                    actors.add(Actor(
-                            Vector3(x, y, z),
-                            Quaternion(),
-                            0f,
-                            asteroidModels[size],
-                            pilot=DriftPilot(),
-                            radius = (size + 1) * 2.5f,
-                            collider = DamageCollider(100f)
-                    ))
-                }
-            }
-        }
 
         val controllers = Controllers.getControllers()
 
-        // players
-        controllers.forEachIndexed { i, controller ->
-            Gdx.app.log("Controller Found, Assigning ship", controller.name)
-            val aircraftType = AircraftType.SWORDFISH // if(i%2==0)  AircraftType.SWORDFISH else AircraftType.TILAPIA
-            val playerStart = PlayerStart.values()[i]
-            val actor = Actor(
-                    position = playerStart.pos.cpy().scl(2f),
-                    rotation = playerStart.rotation.cpy(),
-                    velocity = 300f,
-                    model = aircraftType.model,
-                    pilot = HumanPilot(controller),
-                    life = Life(aircraftType.life),
-                    aircraftType = aircraftType,
-                    primaryWeapon = Cannon(BulletType.RAILGUN),
-                    secondaryWeapon = MissileRack(MissileType.VIPER_MK2),
-                    radius = aircraftType.radius,
-                    collider = DamageCollider(4f),
-                    respawnable = true
-            )
-            actors.add(actor)
-            players.add(actor)
-        }
+        mission.place.ships(this, controllers)
 
-        // add some computers
-        for (i in controllers.size until PlayerStart.values().size - 2) {
-            val aircraftType = AircraftType.TILAPIA
-            val playerStart = PlayerStart.values()[i]
-            actors.add(
-                    Actor(
-                            position = playerStart.pos.cpy().scl(2f),
-                            rotation = playerStart.rotation.cpy(),
-                            velocity = 300f,
-                            model = aircraftType.model,
-                            pilot = AiPilot(),
-                            life = Life(aircraftType.life),
-                            aircraftType = aircraftType,
-                            primaryWeapon = Cannon(BulletType.UGS_8),
-                            secondaryWeapon = MissileRack(MissileType.COBRA),
-                            collider = DamageCollider(4f),
-                            respawnable = true
-                    )
-            )
-        }
 
         splitScreen = when (controllers.size) {
             0, 1 -> SplitScreen.ONE
@@ -167,7 +95,7 @@ class FighterGame : ApplicationAdapter() {
 
             if (actor != null) {
                 cam.position.set(actor.position.cpy().add(Vector3(0f, -5f, 1f).mul(actor.rotation)))
-                var target = (actor!!.pilot as AiPilot).lastTarget?.position
+                var target = (actor.pilot as AiPilot).lastTarget?.position
                 if (target == null) {
                     target = actor.position.cpy().add(Vector3(0f, 1000f, 0f).mul(actor.rotation))
                 }
@@ -320,10 +248,13 @@ class FighterGame : ApplicationAdapter() {
 
                 val start = PlayerStart.values()[Random().nextInt(PlayerStart.values().size)]
                 Gdx.app.log("start", start.name)
-                it.position.set(start.pos.cpy())
+                it.position.set(start.pos)
                 it.rotation.set(start.rotation)
                 it.velocity = 300f
-                it.life?.cur = it.life?.max ?: 1f
+                if (it.life != null) {
+                    it.life.cur = it.life.max
+                }
+
 
                 actors.add(it)
             }
@@ -343,7 +274,7 @@ class FighterGame : ApplicationAdapter() {
     }
 }
 
-const val size = (5f * 40f + 15f)
+const val size = (5f * 40f + 15f) * 2
 
 enum class PlayerStart(val pos: Vector3, val rotation: Quaternion) {
     UP(Vector3(0f, 0f, size), Quaternion().setEulerAngles(0f, -90f, 0f)),
