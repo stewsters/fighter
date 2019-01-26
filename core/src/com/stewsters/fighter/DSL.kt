@@ -58,20 +58,20 @@ enum class Place(
                 // players
                 controllers.forEachIndexed { i, controller ->
                     com.badlogic.gdx.Gdx.app.log("Controller Found, Assigning ship", controller.name)
-                    val aircraftType = com.stewsters.fighter.AircraftType.SWORDFISH // if(i%2==0)  AircraftType.SWORDFISH else AircraftType.TILAPIA
-                    val playerStart = com.stewsters.fighter.PlayerStart.values()[i]
-                    val actor = com.stewsters.fighter.Actor(
+                    val aircraftType = AircraftType.SWORDFISH // if(i%2==0)  AircraftType.SWORDFISH else AircraftType.TILAPIA
+                    val playerStart = PlayerStart.values()[i]
+                    val actor = Actor(
                             position = playerStart.pos.cpy(),
                             rotation = playerStart.rotation.cpy(),
                             velocity = 300f,
                             model = aircraftType.model,
-                            pilot = com.stewsters.fighter.HumanPilot(controller),
-                            life = com.stewsters.fighter.Life(aircraftType.life),
+                            pilot = HumanPilot(controller),
+                            life = Life(aircraftType.life),
                             aircraftType = aircraftType,
-                            primaryWeapon = com.stewsters.fighter.Cannon(com.stewsters.fighter.BulletType.RAILGUN),
-                            secondaryWeapon = com.stewsters.fighter.MissileRack(com.stewsters.fighter.MissileType.VIPER_MK2),
+                            primaryWeapon = Cannon(BulletType.RAILGUN),
+                            secondaryWeapon = MissileRack(MissileType.VIPER_MK2),
                             radius = aircraftType.radius,
-                            collider = com.stewsters.fighter.DamageCollider(4f),
+                            collider = DamageCollider(4f),
                             respawnable = true
                     )
                     figherGame.actors.add(actor)
@@ -79,21 +79,21 @@ enum class Place(
                 }
 
                 // add some computers
-                for (i in controllers.size until com.stewsters.fighter.PlayerStart.values().size) {
-                    val aircraftType = com.stewsters.fighter.AircraftType.TILAPIA
-                    val playerStart = com.stewsters.fighter.PlayerStart.values()[i]
+                for (i in controllers.size until PlayerStart.values().size) {
+                    val aircraftType = AircraftType.TILAPIA
+                    val playerStart = PlayerStart.values()[i]
                     figherGame.actors.add(
-                            com.stewsters.fighter.Actor(
+                            Actor(
                                     position = playerStart.pos.cpy(),
                                     rotation = playerStart.rotation.cpy(),
                                     velocity = 300f,
                                     model = aircraftType.model,
-                                    pilot = com.stewsters.fighter.AiPilot(),
-                                    life = com.stewsters.fighter.Life(aircraftType.life),
+                                    pilot = AiPilot(),
+                                    life = Life(aircraftType.life),
                                     aircraftType = aircraftType,
-                                    primaryWeapon = com.stewsters.fighter.Cannon(com.stewsters.fighter.BulletType.UGS_8),
-                                    secondaryWeapon = com.stewsters.fighter.MissileRack(com.stewsters.fighter.MissileType.COBRA),
-                                    collider = com.stewsters.fighter.DamageCollider(4f),
+                                    primaryWeapon = Cannon(BulletType.UGS_8),
+                                    secondaryWeapon = MissileRack(MissileType.COBRA),
+                                    collider = DamageCollider(4f),
                                     respawnable = true
                             )
                     )

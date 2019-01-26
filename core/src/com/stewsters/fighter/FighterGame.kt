@@ -50,10 +50,6 @@ class FighterGame : ApplicationAdapter() {
 
         val mission = campaign.missions.first()
 
-//       val loader =  ObjLoader()
-//        loader.loadModel(Gdx.files.internal("ship1.obj"))
-
-
         // Setup of scenario
         environment = mission.place.environment
         mission.place.props(this)

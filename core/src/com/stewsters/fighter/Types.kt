@@ -1,14 +1,19 @@
 package com.stewsters.fighter
 
+import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.graphics.VertexAttributes
 import com.badlogic.gdx.graphics.g3d.Material
 import com.badlogic.gdx.graphics.g3d.Model
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute
+import com.badlogic.gdx.graphics.g3d.loader.ObjLoader
 import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder
 
 val attr = (VertexAttributes.Usage.Position or VertexAttributes.Usage.Normal).toLong()
 val modelBuilder = ModelBuilder()
+
+val loader =  ObjLoader()
+
 
 enum class AircraftType(
         val acceleration: Float = 1f,
@@ -25,9 +30,8 @@ enum class AircraftType(
             turnYaw = 60f,
             life = 30f,
             radius = 0.8f,
-            model = modelBuilder.createCone(1f, 1f, 0.5f, 6,
-                    Material(ColorAttribute.createDiffuse(Color.RED)),
-                    attr)),
+            model = loader.loadModel(Gdx.files.internal("ship1.obj"))
+    ),
     TILAPIA(
             acceleration = 28f,
             turn = 60f,
