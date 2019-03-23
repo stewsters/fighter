@@ -10,12 +10,26 @@ import com.badlogic.gdx.graphics.g3d.environment.DirectionalLight
 import com.badlogic.gdx.math.Quaternion
 import com.badlogic.gdx.math.Vector3
 import com.badlogic.gdx.utils.Array
+import com.stewsters.fighter.actor.Actor
+import com.stewsters.fighter.actor.DamageCollider
+import com.stewsters.fighter.actor.Faction
+import com.stewsters.fighter.actor.Life
+import com.stewsters.fighter.actor.pilot.AiPilot
+import com.stewsters.fighter.actor.pilot.DriftPilot
+import com.stewsters.fighter.actor.pilot.HumanPilot
+import com.stewsters.fighter.actor.weapon.Cannon
+import com.stewsters.fighter.actor.weapon.MissileRack
+import com.stewsters.fighter.types.AircraftType
+import com.stewsters.fighter.types.BulletType
+import com.stewsters.fighter.types.MissileType
+import com.stewsters.fighter.types.attr
+import com.stewsters.fighter.types.modelBuilder
 import java.util.*
 
 enum class Place(
         environmentSetup: () -> Environment,
         val props: (game: FighterGame) -> Unit,
-        val ships:(figherGame:FighterGame,controllers: Array<Controller>)->Unit,
+        val ships: (fighterGame: FighterGame, controllers: Array<Controller>) -> Unit,
         val environment: Environment = environmentSetup()) {
 
     DEEP_SPACE(
@@ -29,16 +43,16 @@ enum class Place(
 
                 val size = 3f
                 val containerModel =
-                    modelBuilder.createBox(size, size, size,
-                            Material(ColorAttribute.createDiffuse(Color.GRAY)),
-                            attr)
+                        modelBuilder.createBox(size, size, size,
+                                Material(ColorAttribute.createDiffuse(Color.GRAY)),
+                                attr)
 
                 for (x in 0..5) {
                     for (y in 0..5) {
                         for (z in 0..5) {
-                            val x = x.toFloat() * 40f  - (3 * 40)
-                            val y = y.toFloat() * 40f  - (3 * 40)
-                            val z = z.toFloat() * 40f  - (3 * 40)
+                            val x = x.toFloat() * 40f - (3 * 40)
+                            val y = y.toFloat() * 40f - (3 * 40)
+                            val z = z.toFloat() * 40f - (3 * 40)
 
                             it.actors.add(Actor(
                                     Vector3(x, y, z),
@@ -54,7 +68,7 @@ enum class Place(
                 }
 
             },
-            {figherGame:FighterGame, controllers:Array<Controller>->
+            { fighterGame: FighterGame, controllers: Array<Controller> ->
                 // players
                 controllers.forEachIndexed { i, controller ->
                     com.badlogic.gdx.Gdx.app.log("Controller Found, Assigning ship", controller.name)
@@ -74,15 +88,15 @@ enum class Place(
                             collider = DamageCollider(4f),
                             respawnable = true
                     )
-                    figherGame.actors.add(actor)
-                    figherGame.players.add(actor)
+                    fighterGame.actors.add(actor)
+                    fighterGame.players.add(actor)
                 }
 
                 // add some computers
                 for (i in controllers.size until PlayerStart.values().size) {
                     val aircraftType = AircraftType.TILAPIA
                     val playerStart = PlayerStart.values()[i]
-                    figherGame.actors.add(
+                    fighterGame.actors.add(
                             Actor(
                                     position = playerStart.pos.cpy(),
                                     rotation = playerStart.rotation.cpy(),
@@ -140,7 +154,51 @@ enum class Place(
                 }
 
             },
-            {figherGame:FighterGame, controllers:Array<Controller>->}
+            { fighterGame: FighterGame, controllers: Array<Controller> ->
+                // players
+                controllers.forEachIndexed { i, controller ->
+                    com.badlogic.gdx.Gdx.app.log("Controller Found, Assigning ship", controller.name)
+                    val aircraftType = AircraftType.SWORDFISH // if(i%2==0)  AircraftType.SWORDFISH else AircraftType.TILAPIA
+                    val playerStart = PlayerStart.values()[i]
+                    val actor = Actor(
+                            position = playerStart.pos.cpy(),
+                            rotation = playerStart.rotation.cpy(),
+                            velocity = 300f,
+                            model = aircraftType.model,
+                            pilot = HumanPilot(controller),
+                            life = Life(aircraftType.life),
+                            aircraftType = aircraftType,
+                            primaryWeapon = Cannon(BulletType.RAILGUN),
+                            secondaryWeapon = MissileRack(MissileType.VIPER_MK2),
+                            radius = aircraftType.radius,
+                            collider = DamageCollider(4f),
+                            respawnable = true
+                    )
+                    fighterGame.actors.add(actor)
+                    fighterGame.players.add(actor)
+                }
+
+                // add some computers
+                for (i in controllers.size until PlayerStart.values().size) {
+                    val aircraftType = AircraftType.SWORDFISH
+                    val playerStart = PlayerStart.values()[i]
+                    fighterGame.actors.add(
+                            Actor(
+                                    position = playerStart.pos.cpy(),
+                                    rotation = playerStart.rotation.cpy(),
+                                    velocity = 300f,
+                                    model = aircraftType.model,
+                                    pilot = AiPilot(),
+                                    life = Life(aircraftType.life),
+                                    aircraftType = aircraftType,
+                                    primaryWeapon = Cannon(BulletType.UGS_8),
+                                    secondaryWeapon = MissileRack(MissileType.COBRA),
+                                    collider = DamageCollider(4f),
+                                    respawnable = true
+                            )
+                    )
+                }
+            }
     ),
     OCEAN(
             {
@@ -150,7 +208,7 @@ enum class Place(
                 environment
             },
             {},
-            {figherGame:FighterGame, controllers:Array<Controller>->}
+            { fighterGame: FighterGame, controllers: Array<Controller> -> }
     )
 
 }
@@ -215,10 +273,10 @@ val campaign = Campaign(
 // bomber
 
 enum class CapitalShipType {
-    CORVETE, // fast, versatile, can operate solo, counter strike fighters
+    CORVETTE, // fast, versatile, can operate solo, counter strike fighters
     FRIGATE, // large - groups, complements larger ships.  No strike craft, mostly guns
     DESTROYER, // attacks larger warships, think tank destroyer.  forward arcs.  needs some covering fire
-    CRUISER, // versitile, weapons on all sides. can operate solo. A few strike fighters
+    CRUISER, // versatile, weapons on all sides. can operate solo. A few strike fighters
     BATTLECRUISER, // giant capital ship, variety of weapons
     BATTLESHIP, // mountain of main guns and armor.  Armored, moving fortress
     CARRIER, // carries strike craft, point defense.  Needs support ships

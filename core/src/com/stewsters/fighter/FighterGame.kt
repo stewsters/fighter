@@ -15,6 +15,11 @@ import com.badlogic.gdx.graphics.g3d.ModelBatch
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer
 import com.badlogic.gdx.math.Quaternion
 import com.badlogic.gdx.math.Vector3
+import com.stewsters.fighter.actor.Actor
+import com.stewsters.fighter.actor.pilot.AiPilot
+import com.stewsters.fighter.types.AircraftType
+import com.stewsters.fighter.types.BulletType
+import com.stewsters.fighter.types.MissileType
 import java.util.*
 import kotlin.math.max
 import kotlin.math.pow
@@ -263,7 +268,7 @@ class FighterGame : ApplicationAdapter() {
         audio.dispose()
         modelBatch.dispose()
         shapeRenderer.dispose()
-        asteroidModels.forEach { it.dispose() }
+        asteroidModels?.forEach { it.dispose() }
         AircraftType.values().forEach { it.model.dispose() }
         BulletType.values().forEach { it.model.dispose() }
         MissileType.values().forEach { it.model.dispose() }

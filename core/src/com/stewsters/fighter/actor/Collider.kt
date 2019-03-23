@@ -1,4 +1,6 @@
-package com.stewsters.fighter
+package com.stewsters.fighter.actor
+
+import com.stewsters.fighter.FighterGame
 
 interface Collider {
     fun collision(fighterGame: FighterGame, us: Actor, actor: Actor)
