@@ -1,6 +1,8 @@
-package com.stewsters.fighter
+package com.stewsters.fighter.math
 
 import com.badlogic.gdx.math.Vector3
+import kotlin.math.abs
+import kotlin.math.acos
 import kotlin.math.pow
 import kotlin.math.sqrt
 
@@ -34,12 +36,6 @@ fun leadTarget(src: Vector3, targetPos: Vector3, targetVel: Vector3, projectileV
     return FiringSolution(aimSpot, bulletPath, timeToImpact)
 }
 
-data class FiringSolution(
-        val aimSpot: Vector3, // This is where we need to aim to hit them
-        val path: Vector3,    // this is the offset to the aimspot
-        val timeToImpact: Float // estimated time to impact
-)
-
 fun accel(x: Float) = (0.3f * (x + 1f).pow(2f)) - 0.2f
 
 //
@@ -55,3 +51,18 @@ fun accel(x: Float) = (0.3f * (x + 1f).pow(2f)) - 0.2f
 ////            projectileVel = 10f
 ////    )
 //}
+
+
+fun angleBetween(a: Vector3, b: Vector3): Float {
+
+    val unitA = a.cpy().nor()!!
+    val unitB = b.cpy().nor()!!
+
+    val dot = unitA.dot(unitB)
+    return acos(dot)
+}
+
+
+fun deaden(value: Float): Float {
+    return value * abs(value)
+}
