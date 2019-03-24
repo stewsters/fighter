@@ -7,22 +7,36 @@ I did this to work on my 3d math skills, and because I like those 90's style spa
 This is pretty low poly because I am not great at modeling and had limited time. I plan to add some better models in the future.
 
 
+## How to Run
+
+You are going to want a JDK (8 and 11 are tested) installed.  You will want to plug in 1 to 4 xbox 360 controllers.
+
+Clone the repo and run.
+
+```bash
+git clone git@github.com:stewsters/fighter.git
+cd fighter
+./gradlew run
+```
+
+
 ## TODO
 
 ### Game
-* minimap - show where opponents are
+
 * Turn manipulation - can turn better at lower speeds
-* Ammo limitations - cannot keep shooting missiles - they are too good
+* Ammo limitations - cannot keep shooting missiles - they are too good.  Also will need counters
 * missile /ship avoidance of asteroids - probably use some flocking stuff here
-* squadrons - allies that can fly in formation.  probably need to solidify factions
+* squadrons - allies that can fly in formation.  probably need to solidify factions first
 * capital ships (flak cannons?, long range torpedoes) 
-* alternative environments
+* alternative environments - asteroid field, open space, ground
 * DSL for setting up encounters
 
 
 ### Visual
  
 * reticle for aiming?
+* minimap - show where opponents are
 * tracking system - show where enemies are around you
 * explosions
 * particles - make things seem more alive?
