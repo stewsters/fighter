@@ -27,7 +27,9 @@ open class Actor(
 
     companion object {
         val up = Vector3(0f, 0f, 1f)
+        val down = Vector3(0f, 0f, -1f)
         val forward = Vector3(0f, 1f, 0f)
+        val backward = Vector3(0f, 1f, 0f)
         val right = Vector3(1f, 0f, 0f)
         val left = Vector3(-1f, 0f, 0f)
     }

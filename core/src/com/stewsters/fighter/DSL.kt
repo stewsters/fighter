@@ -216,37 +216,83 @@ enum class Place(
 
 class Campaign(val missions: List<Mission>)
 
-class Mission(val name: String, val description: String, val place: Place, val flightGroups: List<FlightGroup>)
+class Mission(
+        val name: String,
+        val description: String,
+        val place: Place,
+        val flightGroups: List<FlightGroup>
+)
 
-class FlightGroup(val faction: Faction)
+class FlightGroup(
+        val faction: Faction,
+        val aircraftType: AircraftType,
+        val qty: Int = 1,
+        val players: Boolean = false,
+        val placement: Placement = Placement.RANDOM
+)
 
+// Where entities start
+enum class Placement {
+    GRID, // grid, centered at 0, 0
+    RANDOM,
+    X_POS,
+    X_NEG
+//    Y_POS,
+//    Y_NEG,
+//    Z_POS,
+//    Z_NEG;
+}
 
 val campaign = Campaign(
         arrayListOf(
                 Mission(
                         "Prelude to War",
-                        "Diplomacy has broken down and war declared between the Aldroni Federation and the Dominion. Attack and destroy all Dominion colonist supplies",
+                        "Diplomacy has broken down and war declared between the Aldroni Federation and the Dominion." +
+                                " Attack and destroy all Dominion colonist supplies",
                         Place.DEEP_SPACE,
                         listOf(
                                 FlightGroup(
-                                        Faction.ALDRONI
+                                        faction = Faction.ALDRONI,
+                                        aircraftType = AircraftType.SWORDFISH,
+                                        qty = 4,
+                                        players = true,
+                                        placement = Placement.X_POS
                                 ),
                                 FlightGroup(
-                                        Faction.DOMINION
+                                        Faction.DOMINION,
+                                        aircraftType = AircraftType.TILAPIA,
+                                        qty = 10,
+                                        placement = Placement.X_NEG
+                                ),
+                                FlightGroup(
+                                        Faction.DOMINION,
+                                        aircraftType = AircraftType.STORAGE,
+                                        qty = 20,
+                                        placement = Placement.GRID
                                 )
                         )
 
                 ),
                 Mission(
                         "Retribution",
-                        "After the initial strike on their supplies, the Dominion is suspected to attack ",
+                        "After the initial strike on their supplies, the Dominion fleet has been detected nearby. " +
+                                " Prepare for an attack. ",
                         Place.ASTEROIDS,
                         listOf(
                                 FlightGroup(
-                                        Faction.ALDRONI
+                                        Faction.ALDRONI,
+                                        aircraftType = AircraftType.SWORDFISH,
+                                        qty = 4
                                 ),
                                 FlightGroup(
-                                        Faction.DOMINION
+                                        Faction.DOMINION,
+                                        aircraftType = AircraftType.TILAPIA,
+                                        qty = 8
+                                ),
+                                FlightGroup(
+                                        Faction.DOMINION,
+                                        aircraftType = AircraftType.TILAPIA,
+                                        qty = 8
                                 )
                         )
                 ),
@@ -256,10 +302,14 @@ val campaign = Campaign(
                         Place.OCEAN,
                         listOf(
                                 FlightGroup(
-                                        Faction.ALDRONI
+                                        Faction.ALDRONI,
+                                        aircraftType = AircraftType.SWORDFISH,
+                                        qty = 4
                                 ),
                                 FlightGroup(
-                                        Faction.DOMINION
+                                        Faction.DOMINION,
+                                        aircraftType = AircraftType.TILAPIA,
+                                        qty = 10
                                 )
                         )
                 )
@@ -267,7 +317,7 @@ val campaign = Campaign(
 )
 
 
-// fighter / interceptor
+// fighter / interceptor /
 //
 // patrol torpedo boats
 // bomber

@@ -7,9 +7,8 @@ import com.badlogic.gdx.graphics.g3d.Model
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute
 
 enum class AircraftType(
-        val acceleration: Float = 1f,
-
-        val turn: Float = 10f,
+        val acceleration: Float = 0f,
+        val turn: Float = 0f,
         val turnYaw: Float = turn,
         var model: Model,
         val life: Float = 1f,
@@ -23,7 +22,7 @@ enum class AircraftType(
             radius = 0.8f,
             model = loader.loadModel(Gdx.files.internal("ship1.obj"))
     ),
-    TILAPIA(
+    TILAPIA(    // NPC ships, we want to be better than them
             acceleration = 28f,
             turn = 60f,
             life = 30f,
@@ -31,5 +30,14 @@ enum class AircraftType(
             model = modelBuilder.createCylinder(1f, 1f, 1f, 8,
                     Material(ColorAttribute.createDiffuse(Color.ORANGE)),
                     attr)
-    ); // NPC ships, we want to be better than them
+    ),
+    STORAGE(
+            life = 100f,
+            radius = 5f,
+            model = modelBuilder.createBox(10f, 10f, 10f,
+                    Material(ColorAttribute.createDiffuse(Color.SALMON)),
+                    attr
+            )
+    )
+
 }

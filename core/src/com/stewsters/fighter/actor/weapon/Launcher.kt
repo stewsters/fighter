@@ -9,7 +9,9 @@ abstract class Launcher(
         val launchVelocity: Float,
         val tubeOffsets: List<Vector3> = listOf(
                 Actor.right.cpy().scl(1f).add(Actor.forward),
-                Actor.left.cpy().scl(1f).add(Actor.forward)
+                Actor.left.cpy().scl(1f).add(Actor.forward),
+                Actor.up.cpy().scl(1f).add(Actor.forward),
+                Actor.down.cpy().scl(1f).add(Actor.forward)
         )
 ) : Weapon {
 
