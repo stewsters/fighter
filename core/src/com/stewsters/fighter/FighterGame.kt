@@ -8,10 +8,8 @@ import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.graphics.GL20
 import com.badlogic.gdx.graphics.PerspectiveCamera
 import com.badlogic.gdx.graphics.g3d.Environment
-
 import com.badlogic.gdx.graphics.g3d.Model
 import com.badlogic.gdx.graphics.g3d.ModelBatch
-
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer
 import com.badlogic.gdx.math.Quaternion
 import com.badlogic.gdx.math.Vector3
@@ -60,8 +58,7 @@ class FighterGame : ApplicationAdapter() {
         mission.place.props(this)
 
 
-        val controllers = Controllers.getControllers()
-
+        val controllers = Controllers.getControllers().take(4)
         mission.place.ships(this, controllers)
 
 

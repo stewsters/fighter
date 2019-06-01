@@ -29,7 +29,7 @@ import java.util.*
 enum class Place(
         environmentSetup: () -> Environment,
         val props: (game: FighterGame) -> Unit,
-        val ships: (fighterGame: FighterGame, controllers: Array<Controller>) -> Unit,
+        val ships: (fighterGame: FighterGame, controllers: List<Controller>) -> Unit,
         val environment: Environment = environmentSetup()) {
 
     DEEP_SPACE(
@@ -68,7 +68,7 @@ enum class Place(
                 }
 
             },
-            { fighterGame: FighterGame, controllers: Array<Controller> ->
+            { fighterGame: FighterGame, controllers: List<Controller> ->
                 // players
                 controllers.forEachIndexed { i, controller ->
                     com.badlogic.gdx.Gdx.app.log("Controller Found, Assigning ship", controller.name)
@@ -154,7 +154,7 @@ enum class Place(
                 }
 
             },
-            { fighterGame: FighterGame, controllers: Array<Controller> ->
+            { fighterGame: FighterGame, controllers: List<Controller> ->
                 // players
                 controllers.forEachIndexed { i, controller ->
                     com.badlogic.gdx.Gdx.app.log("Controller Found, Assigning ship", controller.name)
@@ -208,7 +208,7 @@ enum class Place(
                 environment
             },
             {},
-            { fighterGame: FighterGame, controllers: Array<Controller> -> }
+            { fighterGame: FighterGame, controllers: List<Controller> -> }
     )
 
 }
