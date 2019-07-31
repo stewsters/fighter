@@ -15,9 +15,7 @@ import com.badlogic.gdx.math.Quaternion
 import com.badlogic.gdx.math.Vector3
 import com.stewsters.fighter.actor.Actor
 import com.stewsters.fighter.actor.pilot.AiPilot
-import com.stewsters.fighter.types.AircraftType
-import com.stewsters.fighter.types.BulletType
-import com.stewsters.fighter.types.MissileType
+import com.stewsters.fighter.types.*
 import java.util.*
 import kotlin.math.max
 import kotlin.math.pow
@@ -84,22 +82,23 @@ class FighterGame : ApplicationAdapter() {
         if (actor != null) {
             cam.position.set(actor.position.cpy().add(Vector3(0f, -5f, 1f).mul(actor.rotation)))
             cam.lookAt(actor.position.cpy().add(Vector3(0f, 1000f, 0f).mul(actor.rotation)))
-            cam.up.set(Actor.up.cpy().mul(actor.rotation))
+            cam.up.set(up.cpy().mul(actor.rotation))
 
         } else {
-
 
             val actor = actors.find { it.aircraftType != null }
 
             if (actor != null) {
                 cam.position.set(actor.position.cpy().add(Vector3(0f, -5f, 1f).mul(actor.rotation)))
-                var target = (actor.pilot as AiPilot).lastTarget?.position
-                if (target == null) {
-                    target = actor.position.cpy().add(Vector3(0f, 1000f, 0f).mul(actor.rotation))
-                }
 
-                cam.lookAt(target)
-                cam.up.set(Actor.up.cpy().mul(actor.rotation))
+                cam.lookAt(actor.position.cpy().add(Vector3(0f,1000f,0f).mul(actor.rotation)))
+//                var target = (actor.pilot as AiPilot).lastTarget?.position
+//                if (target == null) {
+//                    target = actor.position.cpy().add(Vector3(0f, 1000f, 0f).mul(actor.rotation))
+//                }
+//                cam.lookAt(target)
+
+                cam.up.set(up.cpy().mul(actor.rotation))
 
 //                cam.lookAt(actor.position)
             } else {
@@ -130,9 +129,9 @@ class FighterGame : ApplicationAdapter() {
                 if (pilot != null) {
                     val accel = pilot.getAccel()
 
-                    rotation.mul(Quaternion(Actor.up, -1f * pilot.getYaw() * dt))
-                    rotation.mul(Quaternion(Actor.right, pilot.getPitch() * dt))
-                    rotation.mul(Quaternion(Actor.forward, pilot.getRoll() * dt))
+                    rotation.mul(Quaternion(up, -1f * pilot.getYaw() * dt))
+                    rotation.mul(Quaternion(right, pilot.getPitch() * dt))
+                    rotation.mul(Quaternion(forward, pilot.getRoll() * dt))
                     velocity += accel * dt // Speed up
                 }
 
@@ -146,7 +145,7 @@ class FighterGame : ApplicationAdapter() {
             }
         }
 
-        // this will be inefficient, we may need to fix that
+        // this will be inefficient, we may need to fix that if we want to support large battles
         for (i in (0 until actors.size)) {
             for (j in (i + 1 until actors.size)) {
                 // test collision

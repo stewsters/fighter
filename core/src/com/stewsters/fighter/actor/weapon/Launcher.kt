@@ -3,15 +3,16 @@ package com.stewsters.fighter.actor.weapon
 import com.badlogic.gdx.math.Vector3
 import com.stewsters.fighter.FighterGame
 import com.stewsters.fighter.actor.Actor
+import com.stewsters.fighter.types.*
 
 abstract class Launcher(
         val refireMS: Long,
         val launchVelocity: Float,
         val tubeOffsets: List<Vector3> = listOf(
-                Actor.right.cpy().scl(1f).add(Actor.forward),
-                Actor.left.cpy().scl(1f).add(Actor.forward),
-                Actor.up.cpy().scl(1f).add(Actor.forward),
-                Actor.down.cpy().scl(1f).add(Actor.forward)
+                right.cpy().scl(1f).add(forward),
+                left.cpy().scl(1f).add(forward),
+                up.cpy().scl(1f).add(forward),
+                down.cpy().scl(1f).add(forward)
         )
 ) : Weapon {
 

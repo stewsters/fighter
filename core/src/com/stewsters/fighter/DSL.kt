@@ -9,7 +9,6 @@ import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute
 import com.badlogic.gdx.graphics.g3d.environment.DirectionalLight
 import com.badlogic.gdx.math.Quaternion
 import com.badlogic.gdx.math.Vector3
-import com.badlogic.gdx.utils.Array
 import com.stewsters.fighter.actor.Actor
 import com.stewsters.fighter.actor.DamageCollider
 import com.stewsters.fighter.actor.Faction
@@ -19,11 +18,7 @@ import com.stewsters.fighter.actor.pilot.DriftPilot
 import com.stewsters.fighter.actor.pilot.HumanPilot
 import com.stewsters.fighter.actor.weapon.Cannon
 import com.stewsters.fighter.actor.weapon.MissileRack
-import com.stewsters.fighter.types.AircraftType
-import com.stewsters.fighter.types.BulletType
-import com.stewsters.fighter.types.MissileType
-import com.stewsters.fighter.types.attr
-import com.stewsters.fighter.types.modelBuilder
+import com.stewsters.fighter.types.*
 import java.util.*
 
 enum class Place(
@@ -50,12 +45,14 @@ enum class Place(
                 for (x in 0..5) {
                     for (y in 0..5) {
                         for (z in 0..5) {
-                            val x = x.toFloat() * 40f - (3 * 40)
-                            val y = y.toFloat() * 40f - (3 * 40)
-                            val z = z.toFloat() * 40f - (3 * 40)
+                            val pos = Vector3(
+                                    x.toFloat() * 40f - (3 * 40),
+                                    y.toFloat() * 40f - (3 * 40),
+                                    z.toFloat() * 40f - (3 * 40)
+                            )
 
                             it.actors.add(Actor(
-                                    Vector3(x, y, z),
+                                    pos,
                                     Quaternion(),
                                     0f,
                                     containerModel,
@@ -135,13 +132,14 @@ enum class Place(
                 for (x in 0..5) {
                     for (y in 0..5) {
                         for (z in 0..5) {
-                            val x = x.toFloat() * 40f + (r.nextFloat() * 30f - 15f) - (3 * 40)
-                            val y = y.toFloat() * 40f + (r.nextFloat() * 30f - 15f) - (3 * 40)
-                            val z = z.toFloat() * 40f + (r.nextFloat() * 30f - 15f) - (3 * 40)
-
+                            val pos = Vector3(
+                                    x.toFloat() * 40f + (r.nextFloat() * 30f - 15f) - (3 * 40),
+                                    y.toFloat() * 40f + (r.nextFloat() * 30f - 15f) - (3 * 40),
+                                    z.toFloat() * 40f + (r.nextFloat() * 30f - 15f) - (3 * 40)
+                            )
                             val size = r.nextInt(asteroidModels.size)
                             it.actors.add(Actor(
-                                    Vector3(x, y, z),
+                                    pos,
                                     Quaternion(),
                                     0f,
                                     asteroidModels[size],
@@ -208,11 +206,12 @@ enum class Place(
                 environment
             },
             {},
-            { fighterGame: FighterGame, controllers: List<Controller> -> }
+            { fighterGame: FighterGame, controllers: List<Controller> ->
+
+            }
     )
 
 }
-
 
 class Campaign(val missions: List<Mission>)
 
