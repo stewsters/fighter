@@ -33,7 +33,6 @@ class AiPilot : PilotBase() {
 
             val dist = us.position.dst2(target.position)
 
-
             // If in attack mode and we are too close, change to retreat mode.
             // if we are in retreat mode and too far away, switch to attack mode
             val towards = when (mode) {

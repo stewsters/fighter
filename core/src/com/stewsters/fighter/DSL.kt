@@ -120,7 +120,7 @@ enum class Place(
             },
             {
 
-                val asteroidModels = kotlin.Array(3) {
+                val asteroidModels = Array(3) {
                     val size = (it + 1) * 5f
                     modelBuilder.createSphere(size, size, size,
                             5 + it, 5 + it,

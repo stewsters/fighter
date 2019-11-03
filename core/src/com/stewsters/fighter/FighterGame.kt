@@ -14,7 +14,6 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer
 import com.badlogic.gdx.math.Quaternion
 import com.badlogic.gdx.math.Vector3
 import com.stewsters.fighter.actor.Actor
-import com.stewsters.fighter.actor.pilot.AiPilot
 import com.stewsters.fighter.types.*
 import java.util.*
 import kotlin.math.max
@@ -59,6 +58,8 @@ class FighterGame : ApplicationAdapter() {
         val controllers = Controllers.getControllers().take(4)
         mission.place.ships(this, controllers)
 
+        println(controllers)
+
 
         splitScreen = when (controllers.size) {
             0, 1 -> SplitScreen.ONE
@@ -84,21 +85,25 @@ class FighterGame : ApplicationAdapter() {
             cam.lookAt(actor.position.cpy().add(Vector3(0f, 1000f, 0f).mul(actor.rotation)))
             cam.up.set(up.cpy().mul(actor.rotation))
 
+        } else if (true) {
+            cam.position.set(150f, 150f, 150f)
+            cam.lookAt(0f, 0f, 0f)
+
         } else {
 
-            val actor = actors.find { it.aircraftType != null }
+            val randomActor = actors.find { it.aircraftType != null }
 
-            if (actor != null) {
-                cam.position.set(actor.position.cpy().add(Vector3(0f, -5f, 1f).mul(actor.rotation)))
+            if (randomActor != null) {
+                cam.position.set(randomActor.position.cpy().add(Vector3(0f, -5f, 1f).mul(randomActor.rotation)))
 
-                cam.lookAt(actor.position.cpy().add(Vector3(0f,1000f,0f).mul(actor.rotation)))
+                cam.lookAt(randomActor.position.cpy().add(Vector3(0f, 1000f, 0f).mul(randomActor.rotation)))
 //                var target = (actor.pilot as AiPilot).lastTarget?.position
 //                if (target == null) {
 //                    target = actor.position.cpy().add(Vector3(0f, 1000f, 0f).mul(actor.rotation))
 //                }
 //                cam.lookAt(target)
 
-                cam.up.set(up.cpy().mul(actor.rotation))
+                cam.up.set(up.cpy().mul(randomActor.rotation))
 
 //                cam.lookAt(actor.position)
             } else {
@@ -264,7 +269,7 @@ class FighterGame : ApplicationAdapter() {
         audio.dispose()
         modelBatch.dispose()
         shapeRenderer.dispose()
-        asteroidModels?.forEach { it.dispose() }
+        asteroidModels.forEach { it.dispose() }
         AircraftType.values().forEach { it.model.dispose() }
         BulletType.values().forEach { it.model.dispose() }
         MissileType.values().forEach { it.model.dispose() }
