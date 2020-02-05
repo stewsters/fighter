@@ -50,7 +50,8 @@ class AiPilot : PilotBase() {
                     -1f
                 }
                 AiState.EVADE -> {
-
+//                    if (!us.beingAimedAtBy(target))
+//                        mode = AiState.ATTACK
                     0f
                 }
             }
