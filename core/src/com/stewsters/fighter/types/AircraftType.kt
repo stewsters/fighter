@@ -20,7 +20,7 @@ enum class AircraftType(
             turnYaw = 60f,
             life = 30f,
             radius = 0.8f,
-            model = loader.loadModel(Gdx.files.internal("ship1.obj"))
+            model = loader.loadModel(Gdx.files.internal("F_22_Raptor.obj"))
     ),
     TILAPIA(    // NPC ships, we want to be better than them
             acceleration = 28f,

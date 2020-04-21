@@ -133,9 +133,9 @@ enum class Place(
                     for (y in 0..5) {
                         for (z in 0..5) {
                             val pos = Vector3(
-                                    x.toFloat() * 40f + (r.nextFloat() * 30f - 15f) - (3 * 40),
-                                    y.toFloat() * 40f + (r.nextFloat() * 30f - 15f) - (3 * 40),
-                                    z.toFloat() * 40f + (r.nextFloat() * 30f - 15f) - (3 * 40)
+                                    x.toFloat() * 80f + (r.nextFloat() * 60f - 30f) - (3 * 80),
+                                    y.toFloat() * 80f + (r.nextFloat() * 60f - 30f) - (3 * 80),
+                                    z.toFloat() * 80f + (r.nextFloat() * 60f - 30f) - (3 * 80)
                             )
                             val size = r.nextInt(asteroidModels.size)
                             it.actors.add(Actor(
@@ -248,7 +248,7 @@ val campaign = Campaign(
                         "Prelude to War",
                         "Diplomacy has broken down and war declared between the Aldroni Federation and the Dominion." +
                                 " Attack and destroy all Dominion colonist supplies",
-                        Place.DEEP_SPACE,
+                        Place.ASTEROIDS,
                         listOf(
                                 FlightGroup(
                                         faction = Faction.ALDRONI,

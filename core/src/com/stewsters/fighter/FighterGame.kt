@@ -33,7 +33,6 @@ class FighterGame : ApplicationAdapter() {
     val removeActors = mutableListOf<Actor>()
     var respawnActors = mutableListOf<Actor>()
 
-
     internal lateinit var asteroidModels: Array<Model>
 
     var splitScreen: SplitScreen = SplitScreen.ONE
@@ -58,8 +57,7 @@ class FighterGame : ApplicationAdapter() {
         val controllers = Controllers.getControllers().take(4)
         mission.place.ships(this, controllers)
 
-        println(controllers)
-
+        println("Controllers " + controllers)
 
         splitScreen = when (controllers.size) {
             0, 1 -> SplitScreen.ONE
@@ -85,9 +83,10 @@ class FighterGame : ApplicationAdapter() {
             cam.lookAt(actor.position.cpy().add(Vector3(0f, 1000f, 0f).mul(actor.rotation)))
             cam.up.set(up.cpy().mul(actor.rotation))
 
-        } else if (true) {
-            cam.position.set(150f, 150f, 150f)
-            cam.lookAt(0f, 0f, 0f)
+            // TODO: comment this is for an overview
+//        } else if (true) {
+//            cam.position.set(150f, 150f, 150f)
+//            cam.lookAt(0f, 0f, 0f)
 
         } else {
 
@@ -132,12 +131,11 @@ class FighterGame : ApplicationAdapter() {
             with(craft) {
 
                 if (pilot != null) {
-                    val accel = pilot.getAccel()
 
                     rotation.mul(Quaternion(up, -1f * pilot.getYaw() * dt))
                     rotation.mul(Quaternion(right, pilot.getPitch() * dt))
                     rotation.mul(Quaternion(forward, pilot.getRoll() * dt))
-                    velocity += accel * dt // Speed up
+                    velocity += pilot.getAccel() * dt // Speed up
                 }
 
                 velocity *= 1f - (0.8f * dt) // Slow down

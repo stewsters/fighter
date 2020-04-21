@@ -50,7 +50,6 @@ class AiPilot : PilotBase() {
                     -1f
                 }
                 AiState.EVADE -> {
-
                     0f
                 }
             }
