@@ -6,13 +6,13 @@ import com.stewsters.fighter.actor.Actor
 import com.stewsters.fighter.math.leadTarget
 import kotlin.math.max
 
-class AiPilot : PilotBase() {
+class AiPilot : Pilot {
 
     var lastTarget: Actor? = null
     var lastTargetTime: Long = 0
     var mode: AiState = AiState.ATTACK
 
-    override fun fly(fighterGame: FighterGame, us: Actor) {
+    override fun fly(fighterGame: FighterGame, us: Actor): PilotControl {
 
         val aircraftType = us.aircraftType!!
 
@@ -29,93 +29,108 @@ class AiPilot : PilotBase() {
         }
 
 
-        if (target != null) {
+        if (target == null) {
+            // if we dont have a target, get in formation?
+            return PilotControl()
+        }
 
-            val dist = us.position.dst2(target.position)
+        val dist = us.position.dst2(target.position)
 
-            // If in attack mode and we are too close, change to retreat mode.
-            // if we are in retreat mode and too far away, switch to attack mode
-            val towards = when (mode) {
-                AiState.ATTACK -> {
-                    if (dist < 200f) mode = AiState.RETREAT
-                    1f
-                }
-                AiState.RETREAT -> {
-                    if (dist > 1200f)
-                        mode = AiState.ATTACK
+        // If in attack mode and we are too close, change to retreat mode.
+        // if we are in retreat mode and too far away, switch to attack mode
+        val towards = when (mode) {
+            AiState.ATTACK -> {
+                if (dist < 200f) mode = AiState.RETREAT
+                1f
+            }
+            AiState.RETREAT -> {
+                if (dist > 1200f)
+                    mode = AiState.ATTACK
 
 //                    else if (us beingAimedAtBy target)
 //                        mode = AiState.EVADE
 
-                    -1f
-                }
-                AiState.EVADE -> {
-                    0f
-                }
+                -1f
             }
-
-            val turn = aircraftType.turn
-            val turnYaw = aircraftType.turnYaw
-
-            // else calculate where they will be, and fly towards that location
-            val solution = leadTarget(
-                    us.position,
-                    target.position,
-                    Vector3(0f, target.velocity, 0f).mul(target.rotation),
-                    max(us.velocity, 3f)
-            )
-
-            val unRotatedTargetOffset = solution.path.mul(us.rotation.cpy().conjugate())
-
-            if (unRotatedTargetOffset.z > 0f) {
-                pitchp = turn
-            } else {
-                pitchp = -turn
+            AiState.EVADE -> {
+                0f
             }
+        }
 
-            if (unRotatedTargetOffset.x > 0f) {
-                yawp = turnYaw
-                rollp = turn
-            } else {
-                yawp = -turnYaw
-                rollp = -turn
-            }
+        val turn = aircraftType.turn
+        val turnYaw = aircraftType.turnYaw
 
-            pitchp *= towards
-            yawp *= towards
-            rollp *= towards
+        // else calculate where they will be, and fly towards that location
+        val solution = leadTarget(
+                us.position,
+                target.position,
+                Vector3(0f, target.velocity, 0f).mul(target.rotation),
+                max(us.velocity, 3f)
+        )
 
+        val unRotatedTargetOffset = solution.path.mul(us.rotation.cpy().conjugate())
+
+        var pitchp = 0f
+        var yawp = 0f
+        var rollp = 0f
+
+
+        if (unRotatedTargetOffset.z > 0f) {
+            pitchp = turn * towards
+        } else {
+            pitchp = -turn * towards
+        }
+
+        if (unRotatedTargetOffset.x > 0f) {
+            yawp = turnYaw * towards
+            rollp = turn * towards
+        } else {
+            yawp = -turnYaw * towards
+            rollp = -turn * towards
+        }
+
+//        pitchp *= towards
+//        yawp *= towards
+//        rollp *= towards
+
+        var primary = false;
+        var secondary = false;
+        var accelp = 0f
+        if (unRotatedTargetOffset.y > 0) { // THey are in front of  us
 
             // if we are close enough, shoot
-            if (unRotatedTargetOffset.y > 0) {
-
-                if (us.secondaryWeapon != null && dist < 3000) {
-                    us.secondaryWeapon.fire(fighterGame, us)
-                }
-
-                if (dist < 1500 && mode == AiState.ATTACK) {
-
-                    accelp = 0.25f * aircraftType.acceleration
-                    if (us.primaryWeapon != null) {
-                        us.primaryWeapon.fire(fighterGame, us)
-                    }
-
-                } else {
-                    accelp = aircraftType.acceleration
-                }
-
-            } else {
-                if (mode == AiState.ATTACK) {
-                    accelp = aircraftType.acceleration
-                } else { // retreat
-                    accelp = 0.25f * aircraftType.acceleration
-                }
-
+            if (dist < 3000) {
+                secondary = true;
             }
 
+            if (dist < 1500 && mode == AiState.ATTACK) {
+
+                accelp = 0.25f * aircraftType.acceleration
+                primary = true
+
+            } else {
+                accelp = aircraftType.acceleration
+            }
+
+        } else {
+            if (mode == AiState.ATTACK) {
+                accelp = aircraftType.acceleration
+            } else { // retreat
+                accelp = 0.25f * aircraftType.acceleration
+            }
 
         }
-        // if we dont have a target, get in formation?
+
+        return PilotControl(
+                pitchp = pitchp,
+                yawp = yawp,
+                rollp = rollp,
+                accelp = accelp,
+                primaryWeapon = primary,
+                secondaryWeapon = secondary
+        )
+
+
     }
 
     private fun findInForwardArc(

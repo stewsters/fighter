@@ -122,22 +122,31 @@ class FighterGame : ApplicationAdapter() {
         }
 
         val dt = Gdx.graphics.deltaTime
-
-
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT or GL20.GL_DEPTH_BUFFER_BIT)
 
+        // Simulate
         for (craft in actors) {
-            craft.pilot?.fly(this, craft)
-            with(craft) {
 
-                if (pilot != null) {
+            if (craft.pilot != null) {
+                val pilotControl = craft.pilot.fly(this, craft)
 
-                    rotation.mul(Quaternion(up, -1f * pilot.getYaw() * dt))
-                    rotation.mul(Quaternion(right, pilot.getPitch() * dt))
-                    rotation.mul(Quaternion(forward, pilot.getRoll() * dt))
-                    velocity += pilot.getAccel() * dt // Speed up
+                craft.rotation.mul(Quaternion(up, -1f * pilotControl.yawp * dt))
+                craft.rotation.mul(Quaternion(right, pilotControl.pitchp * dt))
+                craft.rotation.mul(Quaternion(forward, pilotControl.rollp * dt))
+                craft.velocity += pilotControl.accelp * dt // Speed up
+
+                // if primary shoot
+                if (pilotControl.primaryWeapon) {
+                    craft.primaryWeapon?.fire(this, craft)
                 }
 
+                // if secondary shoot
+                if (pilotControl.secondaryWeapon) {
+                    craft.secondaryWeapon?.fire(this, craft)
+                }
+            }
+
+            with(craft) {
                 velocity *= 1f - (0.8f * dt) // Slow down
 
                 position.add(Vector3(0f, velocity * dt, 0f).mul(rotation))

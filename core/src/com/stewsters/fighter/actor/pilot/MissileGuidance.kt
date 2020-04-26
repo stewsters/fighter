@@ -8,9 +8,9 @@ import com.stewsters.fighter.types.MissileType
 import kotlin.math.max
 
 // Steers a missile at an opponent
-class MissileGuidance(val target: Actor, val missileType: MissileType) : PilotBase() {
+class MissileGuidance(val target: Actor, val missileType: MissileType) : Pilot {
 
-    override fun fly(fighterGame: FighterGame, us: Actor) {
+    override fun fly(fighterGame: FighterGame, us: Actor): PilotControl {
         // if we are close enough, detonate
         if (target.position.dst(us.position) < missileType.explosionRadius) {
             fighterGame.actors
@@ -34,27 +34,24 @@ class MissileGuidance(val target: Actor, val missileType: MissileType) : PilotBa
 
         val unRotatedTargetOffset = solution.path.mul(us.rotation.cpy().conjugate())
 
-        if (unRotatedTargetOffset.z > 0f) {
-            pitchp = turn
-        } else {
-            pitchp = -turn
-        }
+        return PilotControl(
+                pitchp = if (unRotatedTargetOffset.z > 0f) {
+                    turn
+                } else {
+                    -turn
+                },
+                yawp = if (unRotatedTargetOffset.x > 0f) {
+                    turn
+                } else {
+                    -turn
+                },
+                accelp = if (unRotatedTargetOffset.y > 0) {
+                    missileType.acceleration
+                } else {
+                    0.25f * missileType.acceleration
+                }
+        )
 
-        if (unRotatedTargetOffset.x > 0f) {
-            yawp = turn
-        } else {
-            yawp = -turn
-        }
-
-
-        if (unRotatedTargetOffset.y > 0) {
-            accelp = missileType.acceleration
-        } else {
-            accelp = 0.25f * missileType.acceleration
-        }
-
-
-        // if we are left, go left, right should go right
 
     }
 
