@@ -46,3 +46,5 @@ cd fighter
 
 ## Credits
 Audio from https://opengameart.org/content/63-digital-sound-effects-lasers-phasers-space-etc
+
+Skybox https://wwwtyro.github.io/space-3d/

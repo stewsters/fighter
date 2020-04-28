@@ -65,7 +65,7 @@ class AiPilot : Pilot {
                 us.position,
                 target.position,
                 Vector3(0f, target.velocity, 0f).mul(target.rotation),
-                max(us.velocity, 3f)
+                max(us.velocity, us.primaryWeapon?.getVelocity()?:3f)
         )
 
         val unRotatedTargetOffset = solution.path.mul(us.rotation.cpy().conjugate())
@@ -93,14 +93,14 @@ class AiPilot : Pilot {
 //        yawp *= towards
 //        rollp *= towards
 
-        var primary = false;
-        var secondary = false;
+        var primary = false
+        var secondary = false
         var accelp = 0f
         if (unRotatedTargetOffset.y > 0) { // THey are in front of  us
 
             // if we are close enough, shoot
             if (dist < 3000) {
-                secondary = true;
+                secondary = true
             }
 
             if (dist < 1500 && mode == AiState.ATTACK) {

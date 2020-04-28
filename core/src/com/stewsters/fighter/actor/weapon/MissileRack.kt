@@ -46,4 +46,6 @@ class MissileRack(val missileType: MissileType) : Launcher(
         ))
 
     }
+
+    override fun getVelocity(): Float =launchVelocity
 }

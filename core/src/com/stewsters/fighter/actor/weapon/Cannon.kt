@@ -25,4 +25,7 @@ class Cannon(val bulletType: BulletType) : Launcher(bulletType.refireMS, bulletT
                 collider = DamageAndDisappearCollider(bulletType.damage)
         ))
     }
+
+    override fun getVelocity(): Float =launchVelocity
+
 }
