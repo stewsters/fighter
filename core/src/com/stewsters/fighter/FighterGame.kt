@@ -5,6 +5,7 @@ import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.Input
 import com.badlogic.gdx.controllers.Controllers
 import com.badlogic.gdx.graphics.Color
+import com.badlogic.gdx.graphics.Cubemap
 import com.badlogic.gdx.graphics.GL20
 import com.badlogic.gdx.graphics.PerspectiveCamera
 import com.badlogic.gdx.graphics.g3d.Environment
@@ -14,6 +15,7 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer
 import com.badlogic.gdx.math.Quaternion
 import com.badlogic.gdx.math.Vector3
 import com.stewsters.fighter.actor.Actor
+import com.stewsters.fighter.graphics.EnvironmentCubemap
 import com.stewsters.fighter.types.*
 import java.util.*
 import kotlin.math.max
@@ -27,6 +29,7 @@ class FighterGame : ApplicationAdapter() {
     internal lateinit var modelBatch: ModelBatch
     internal lateinit var environment: Environment
     internal lateinit var shapeRenderer: ShapeRenderer
+    internal lateinit var envCubemap: EnvironmentCubemap
 
     val actors = mutableListOf<Actor>()
     val newActors = mutableListOf<Actor>()
@@ -49,6 +52,24 @@ class FighterGame : ApplicationAdapter() {
 
         val mission = campaign.missions.first()
 
+//        Cubemap(
+//                Gdx.files.internal("cubemap/front.png"),//pos-x
+//                Gdx.files.internal("cubemap/back.png"), //neg-x
+//                Gdx.files.internal("cubemap/left.png"), //pos-y
+//                Gdx.files.internal("cubemap/right.png"), //neg-y
+//                Gdx.files.internal("cubemap/top.png"), //pos-z
+//                Gdx.files.internal("cubemap/bottom.png") //neg-z
+//        )
+         envCubemap = EnvironmentCubemap(
+                Gdx.files.internal("cubemap/front.png"),//pos-x
+                Gdx.files.internal("cubemap/back.png"), //neg-x
+                Gdx.files.internal("cubemap/left.png"), //pos-y
+                Gdx.files.internal("cubemap/right.png"), //neg-y
+                Gdx.files.internal("cubemap/top.png"), //pos-z
+                Gdx.files.internal("cubemap/bottom.png") //neg-z
+         )
+
+
         // Setup of scenario
         environment = mission.place.environment
         mission.place.props(this)
@@ -56,7 +77,6 @@ class FighterGame : ApplicationAdapter() {
 
         val controllers = Controllers.getControllers().take(4)
         mission.place.ships(this, controllers)
-
         println("Controllers " + controllers)
 
         splitScreen = when (controllers.size) {
@@ -200,6 +220,8 @@ class FighterGame : ApplicationAdapter() {
 
             look(player)
 
+            // TODO: get cubemap working
+            //envCubemap.render(cam)
 
             modelBatch.begin(cam)
             for (craft in actors) {
@@ -207,6 +229,7 @@ class FighterGame : ApplicationAdapter() {
             }
             modelBatch.end()
 
+            // Draw HUD
             shapeRenderer.begin(ShapeRenderer.ShapeType.Filled)
             shapeRenderer.setColor(Color.DARK_GRAY)
             shapeRenderer.end()
@@ -231,7 +254,7 @@ class FighterGame : ApplicationAdapter() {
 
                         if (pointerToCraft.y > 0) { // forward arc
                             shapeRenderer.rect(100f + x * 100f, 100f + y * 100f, 1f, 1f)
-                        } else {
+                        } else { // rear arc
                             shapeRenderer.rect(300f - x * 100f, 100f - y * 100f, 1f, 1f)
                         }
 
@@ -277,6 +300,7 @@ class FighterGame : ApplicationAdapter() {
         modelBatch.dispose()
         shapeRenderer.dispose()
         asteroidModels.forEach { it.dispose() }
+        envCubemap.dispose()
         AircraftType.values().forEach { it.model.dispose() }
         BulletType.values().forEach { it.model.dispose() }
         MissileType.values().forEach { it.model.dispose() }
