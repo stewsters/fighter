@@ -1,5 +1,4 @@
 buildscript {
-    
 
     repositories {
         mavenLocal()
@@ -10,7 +9,6 @@ buildscript {
         google()
     }
     dependencies {
-        
 
     }
 }
@@ -35,6 +33,8 @@ allprojects {
         google()
         maven { url "https://oss.sonatype.org/content/repositories/snapshots/" }
         maven { url "https://oss.sonatype.org/content/repositories/releases/" }
+        maven { url "https://jitpack.io" }
+        jcenter()
     }
 }
 
@@ -47,20 +47,20 @@ project(":desktop") {
         compile "com.badlogicgames.gdx:gdx-backend-lwjgl3:$gdxVersion"
         compile "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-desktop"
         compile "com.badlogicgames.gdx:gdx-tools:$gdxVersion"
-        compile "com.badlogicgames.gdx:gdx-controllers-desktop:$gdxVersion"
-        compile "com.badlogicgames.gdx:gdx-controllers-platform:$gdxVersion:natives-desktop"
-        
+//        compile "com.badlogicgames.gdx:gdx-controllers-lwjgl3:$gdxVersion"
+//        compile "com.badlogicgames.gdx:gdx-controllers-platform:$gdxVersion:natives-desktop"
+//        compile "de.golfgl.gdxcontrollerutils:gdx-controllers-jamepad:$cuversion"
+        implementation "uk.co.electronstudio.sdl2gdx:sdl2gdx:1.0.4"
     }
 }
 
 project(":core") {
     apply plugin: "java"
 
-
     dependencies {
         compile "com.badlogicgames.gdx:gdx:$gdxVersion"
         compile "com.badlogicgames.gdx:gdx-controllers-lwjgl3:$gdxVersion"
-        
+        compile 'com.moandjiezana.toml:toml4j:0.7.2'
     }
 }
 

@@ -6,12 +6,7 @@ import com.stewsters.fighter.math.angleBetween
 import com.stewsters.fighter.types.forward
 
 interface Pilot {
-    fun fly(fighterGame: FighterGame, actor: Actor)
-
-    fun getPitch(): Float
-    fun getYaw(): Float
-    fun getRoll(): Float
-    fun getAccel(): Float
+    fun fly(fighterGame: FighterGame, actor: Actor):PilotControl
 }
 
 

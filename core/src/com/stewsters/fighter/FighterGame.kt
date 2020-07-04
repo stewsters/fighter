@@ -5,6 +5,7 @@ import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.Input
 import com.badlogic.gdx.controllers.Controllers
 import com.badlogic.gdx.graphics.Color
+import com.badlogic.gdx.graphics.Cubemap
 import com.badlogic.gdx.graphics.GL20
 import com.badlogic.gdx.graphics.PerspectiveCamera
 import com.badlogic.gdx.graphics.g3d.Environment
@@ -14,6 +15,7 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer
 import com.badlogic.gdx.math.Quaternion
 import com.badlogic.gdx.math.Vector3
 import com.stewsters.fighter.actor.Actor
+import com.stewsters.fighter.graphics.EnvironmentCubemap
 import com.stewsters.fighter.types.*
 import java.util.*
 import kotlin.math.max
@@ -27,12 +29,12 @@ class FighterGame : ApplicationAdapter() {
     internal lateinit var modelBatch: ModelBatch
     internal lateinit var environment: Environment
     internal lateinit var shapeRenderer: ShapeRenderer
+    internal lateinit var envCubemap: EnvironmentCubemap
 
     val actors = mutableListOf<Actor>()
     val newActors = mutableListOf<Actor>()
     val removeActors = mutableListOf<Actor>()
     var respawnActors = mutableListOf<Actor>()
-
 
     internal lateinit var asteroidModels: Array<Model>
 
@@ -50,6 +52,24 @@ class FighterGame : ApplicationAdapter() {
 
         val mission = campaign.missions.first()
 
+//        Cubemap(
+//                Gdx.files.internal("cubemap/front.png"),//pos-x
+//                Gdx.files.internal("cubemap/back.png"), //neg-x
+//                Gdx.files.internal("cubemap/left.png"), //pos-y
+//                Gdx.files.internal("cubemap/right.png"), //neg-y
+//                Gdx.files.internal("cubemap/top.png"), //pos-z
+//                Gdx.files.internal("cubemap/bottom.png") //neg-z
+//        )
+         envCubemap = EnvironmentCubemap(
+                Gdx.files.internal("cubemap/front.png"),//pos-x
+                Gdx.files.internal("cubemap/back.png"), //neg-x
+                Gdx.files.internal("cubemap/left.png"), //pos-y
+                Gdx.files.internal("cubemap/right.png"), //neg-y
+                Gdx.files.internal("cubemap/top.png"), //pos-z
+                Gdx.files.internal("cubemap/bottom.png") //neg-z
+         )
+
+
         // Setup of scenario
         environment = mission.place.environment
         mission.place.props(this)
@@ -57,9 +77,7 @@ class FighterGame : ApplicationAdapter() {
 
         val controllers = Controllers.getControllers().take(4)
         mission.place.ships(this, controllers)
-
-        println(controllers)
-
+        println("Controllers " + controllers)
 
         splitScreen = when (controllers.size) {
             0, 1 -> SplitScreen.ONE
@@ -85,9 +103,10 @@ class FighterGame : ApplicationAdapter() {
             cam.lookAt(actor.position.cpy().add(Vector3(0f, 1000f, 0f).mul(actor.rotation)))
             cam.up.set(up.cpy().mul(actor.rotation))
 
-        } else if (true) {
-            cam.position.set(150f, 150f, 150f)
-            cam.lookAt(0f, 0f, 0f)
+            // TODO: comment this is for an overview
+//        } else if (true) {
+//            cam.position.set(150f, 150f, 150f)
+//            cam.lookAt(0f, 0f, 0f)
 
         } else {
 
@@ -123,23 +142,31 @@ class FighterGame : ApplicationAdapter() {
         }
 
         val dt = Gdx.graphics.deltaTime
-
-
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT or GL20.GL_DEPTH_BUFFER_BIT)
 
+        // Simulate
         for (craft in actors) {
-            craft.pilot?.fly(this, craft)
-            with(craft) {
 
-                if (pilot != null) {
-                    val accel = pilot.getAccel()
+            if (craft.pilot != null) {
+                val pilotControl = craft.pilot.fly(this, craft)
 
-                    rotation.mul(Quaternion(up, -1f * pilot.getYaw() * dt))
-                    rotation.mul(Quaternion(right, pilot.getPitch() * dt))
-                    rotation.mul(Quaternion(forward, pilot.getRoll() * dt))
-                    velocity += accel * dt // Speed up
+                craft.rotation.mul(Quaternion(up, -1f * pilotControl.yawp * dt))
+                craft.rotation.mul(Quaternion(right, pilotControl.pitchp * dt))
+                craft.rotation.mul(Quaternion(forward, pilotControl.rollp * dt))
+                craft.velocity += pilotControl.accelp * dt // Speed up
+
+                // if primary shoot
+                if (pilotControl.primaryWeapon) {
+                    craft.primaryWeapon?.fire(this, craft)
                 }
 
+                // if secondary shoot
+                if (pilotControl.secondaryWeapon) {
+                    craft.secondaryWeapon?.fire(this, craft)
+                }
+            }
+
+            with(craft) {
                 velocity *= 1f - (0.8f * dt) // Slow down
 
                 position.add(Vector3(0f, velocity * dt, 0f).mul(rotation))
@@ -193,6 +220,8 @@ class FighterGame : ApplicationAdapter() {
 
             look(player)
 
+            // TODO: get cubemap working
+            //envCubemap.render(cam)
 
             modelBatch.begin(cam)
             for (craft in actors) {
@@ -200,6 +229,7 @@ class FighterGame : ApplicationAdapter() {
             }
             modelBatch.end()
 
+            // Draw HUD
             shapeRenderer.begin(ShapeRenderer.ShapeType.Filled)
             shapeRenderer.setColor(Color.DARK_GRAY)
             shapeRenderer.end()
@@ -224,7 +254,7 @@ class FighterGame : ApplicationAdapter() {
 
                         if (pointerToCraft.y > 0) { // forward arc
                             shapeRenderer.rect(100f + x * 100f, 100f + y * 100f, 1f, 1f)
-                        } else {
+                        } else { // rear arc
                             shapeRenderer.rect(300f - x * 100f, 100f - y * 100f, 1f, 1f)
                         }
 
@@ -270,6 +300,7 @@ class FighterGame : ApplicationAdapter() {
         modelBatch.dispose()
         shapeRenderer.dispose()
         asteroidModels.forEach { it.dispose() }
+        envCubemap.dispose()
         AircraftType.values().forEach { it.model.dispose() }
         BulletType.values().forEach { it.model.dispose() }
         MissileType.values().forEach { it.model.dispose() }

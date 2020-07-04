@@ -9,4 +9,6 @@ import com.stewsters.fighter.actor.Actor
 interface Weapon {
     fun fire(fighterGame: FighterGame, shooter: Actor)
     fun project(fighterGame: FighterGame, shooter: Actor, position: Vector3, rotation: Quaternion, velocity: Float)
+
+   fun getVelocity():Float
 }
