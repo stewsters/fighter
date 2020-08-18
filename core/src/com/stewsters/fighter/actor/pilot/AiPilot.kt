@@ -157,7 +157,7 @@ class AiPilot : Pilot {
             seq.filter { us.faction.isEnemy(it.faction) }
         }
 
-        return seq.minBy {
+        return seq.minByOrNull {
             it.position.dst(us.position)
         }
 

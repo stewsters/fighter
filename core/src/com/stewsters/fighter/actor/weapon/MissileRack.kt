@@ -23,7 +23,7 @@ class MissileRack(val missileType: MissileType) : Launcher(
                 .filter { it.aircraftType != null && it != shooter }
 //                .filter { it.faction.isEnemy(shooter.faction) }
                 .filter { it beingAimedAtBy shooter }
-                .minBy { shooter.position.dst2(it.position) }
+                .minByOrNull { shooter.position.dst2(it.position) }
 
         if (target == null) {
             // fail to fire
